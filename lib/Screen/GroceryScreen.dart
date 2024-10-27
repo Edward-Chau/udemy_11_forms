@@ -11,6 +11,10 @@ class GroceryScreen extends ConsumerStatefulWidget {
 }
 
 class _GroceryScreenState extends ConsumerState<GroceryScreen> {
+  void _addItem() {
+    Navigator.pushNamed(context, 'addscreeen');
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<GroceryItem> groceryList = ref.watch(groceryProvider);
@@ -24,6 +28,12 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
               .titleLarge!
               .copyWith(fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            onPressed: _addItem,
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: groceryList.length,

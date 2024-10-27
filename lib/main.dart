@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:udemy_11/Screen/GroceryScreen.dart';
+import 'package:udemy_11/Screen/NewItemScreen.dart';
 
 void main() {
-  runApp(const ProviderScope(child:  MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -24,6 +25,11 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 50, 58, 60),
       ),
       home: const GroceryScreen(),
+      routes: {
+        'addscreeen': ((context) {
+          return const NewItemScreen();
+        })
+      },
     );
   }
 }
