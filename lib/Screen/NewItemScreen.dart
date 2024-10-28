@@ -9,6 +9,8 @@ class NewItemScreen extends StatefulWidget {
 }
 
 class _NewItemScreenState extends State<NewItemScreen> {
+  final _formkey=GlobalKey();
+  void saveItem() {}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,12 +19,19 @@ class _NewItemScreenState extends State<NewItemScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Form(
+        child: Form(key: _formkey,
           child: Column(
             children: [
               TextFormField(
                 validator: (value) {
-                  return 'test';
+                  //'value.isEmpty' for empty string
+                  if (value == null ||
+                      value.isEmpty ||
+                      value.trim().length <= 1 ||
+                      value.trim().length > 50) {
+                    return 'nmae must between 1 and 50 characters.';
+                  }
+                  return null;
                 },
                 autofocus: true,
                 maxLength: 50,
@@ -33,10 +42,20 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 children: [
                   Expanded(
                     child: TextFormField(
-                        keyboardType: const TextInputType.numberWithOptions(),
-                        decoration:
-                            const InputDecoration(labelText: 'quantity'),
-                        initialValue: '1'),
+                      keyboardType: const TextInputType.numberWithOptions(),
+                      decoration: const InputDecoration(labelText: 'quantity'),
+                      initialValue: '1',
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            int.tryParse(value) == null ||
+                            //will stop in here if value is null
+                            int.tryParse(value)! <= 0) {
+                          return 'plz enter anumber';
+                        }
+                        return null;
+                      },
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -76,7 +95,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: saveItem,
                     child: const Text('Add Item'),
                   ),
                 ],
