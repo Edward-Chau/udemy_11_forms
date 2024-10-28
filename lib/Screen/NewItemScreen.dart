@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:udemy_11/deta/categories.dart';
+import 'package:udemy_11/models/category.dart';
 
 class NewItemScreen extends StatefulWidget {
   const NewItemScreen({super.key});
@@ -9,8 +10,18 @@ class NewItemScreen extends StatefulWidget {
 }
 
 class _NewItemScreenState extends State<NewItemScreen> {
-  final _formkey=GlobalKey();
-  void saveItem() {}
+  final _formkey = GlobalKey<FormState>();
+  void saveItem() {
+    if (_formkey.currentState!.validate()) {
+      _formkey.currentState!.save();
+      print(selecedCategory);
+    }
+  }
+
+  String? enterName;
+  int enterQuantity = 1;
+  var selecedCategory = categories[Categories.vegetables]!;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +30,8 @@ class _NewItemScreenState extends State<NewItemScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Form(key: _formkey,
+        child: Form(
+          key: _formkey,
           child: Column(
             children: [
               TextFormField(
@@ -36,6 +48,9 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 autofocus: true,
                 maxLength: 50,
                 decoration: const InputDecoration(labelText: 'Name'),
+                onSaved: (newValue) {
+                  enterName = newValue;
+                }, //will trigger when' _formkey.currentState!.save()' is run;
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -44,7 +59,7 @@ class _NewItemScreenState extends State<NewItemScreen> {
                     child: TextFormField(
                       keyboardType: const TextInputType.numberWithOptions(),
                       decoration: const InputDecoration(labelText: 'quantity'),
-                      initialValue: '1',
+                      initialValue: enterQuantity.toString(),
                       validator: (value) {
                         if (value == null ||
                             value.isEmpty ||
@@ -55,16 +70,20 @@ class _NewItemScreenState extends State<NewItemScreen> {
                         }
                         return null;
                       },
+                      onSaved: (newValue) {
+                        enterQuantity = int.parse(newValue!);
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
-                    child: DropdownButtonFormField(
+                    child: DropdownButtonFormField<Category>(
+                      value: selecedCategory,
                       items: [
                         ...categories.entries.map(
                           (item) {
                             return DropdownMenuItem(
-                              value: categories.values,
+                              value: item.value,
                               child: Row(
                                 children: [
                                   Container(
@@ -80,7 +99,11 @@ class _NewItemScreenState extends State<NewItemScreen> {
                           },
                         ),
                       ],
-                      onChanged: (value) {},
+                      onChanged: (value) {
+                        setState(() {
+                          selecedCategory = value!;
+                        });
+                      },
                     ),
                   ),
                 ],
@@ -90,7 +113,9 @@ class _NewItemScreenState extends State<NewItemScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _formkey.currentState!.reset();
+                    },
                     child: const Text('Reset'),
                   ),
                   const SizedBox(width: 8),
