@@ -35,20 +35,35 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
-        itemCount: groceryList.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: Container(
-              width: 30,
-              height: 30,
-              color: groceryList[index].category.color,
+      body: groceryList.isEmpty
+          ? const Center(
+              child: Text("no item"),
+            )
+          : ListView.builder(
+              itemCount: groceryList.length,
+              itemBuilder: (context, index) {
+                return Dismissible(
+                  background: Container(
+                    color: Colors.red,
+                  ),
+                  key: ValueKey(groceryList[index].id),
+                  onDismissed: (direction) {
+                    ref
+                        .read(groceryProvider.notifier)
+                        .itemDissible(groceryList[index]);
+                  },
+                  child: ListTile(
+                    leading: Container(
+                      width: 30,
+                      height: 30,
+                      color: groceryList[index].category.color,
+                    ),
+                    title: Text(groceryList[index].name),
+                    trailing: Text(groceryList[index].quantity.toString()),
+                  ),
+                );
+              },
             ),
-            title: Text(groceryList[index].name),
-            trailing: Text(groceryList[index].quantity.toString()),
-          );
-        },
-      ),
     );
   }
 }

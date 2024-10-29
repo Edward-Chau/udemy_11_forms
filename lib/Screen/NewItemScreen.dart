@@ -1,20 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:udemy_11/Provider/grocery_provider.dart';
 import 'package:udemy_11/deta/categories.dart';
+import 'package:udemy_11/deta/dummy_items.dart';
 import 'package:udemy_11/models/category.dart';
+import 'package:udemy_11/models/grocery_item.dart';
 
-class NewItemScreen extends StatefulWidget {
+class NewItemScreen extends ConsumerStatefulWidget {
   const NewItemScreen({super.key});
 
   @override
-  State<NewItemScreen> createState() => _NewItemScreenState();
+  ConsumerState<NewItemScreen> createState() => _NewItemScreenState();
 }
 
-class _NewItemScreenState extends State<NewItemScreen> {
+class _NewItemScreenState extends ConsumerState<NewItemScreen> {
   final _formkey = GlobalKey<FormState>();
   void saveItem() {
     if (_formkey.currentState!.validate()) {
       _formkey.currentState!.save();
-      print(selecedCategory);
+      ref.read(groceryProvider.notifier).itemAdd(GroceryItem(
+          category: selecedCategory,
+          id: DateTime.now().toString(),
+          name: enterName!,
+          quantity: enterQuantity));
+      Navigator.pop(context);
     }
   }
 
