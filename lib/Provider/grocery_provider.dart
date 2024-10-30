@@ -7,11 +7,11 @@ import 'package:http/http.dart' as http;
 class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
   GroceryNotifier() : super([]);
 
-  itemAdd(GroceryItem newItem) {
+  itemAdd(GroceryItem newItem) async {
     state = [...state, newItem];
     final url = Uri.https(
-        'udemy12http-default-rtdb.firebaseio.com/', 'shopping-list/json');
-    http.post(
+        'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
+    final response = await http.post(
       url,
       headers: {'content-type': 'application/json'},
       body: json.encode(
