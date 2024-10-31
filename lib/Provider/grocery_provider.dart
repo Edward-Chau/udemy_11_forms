@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:udemy_11/models/grocery_item.dart';
 import 'package:http/http.dart' as http;
@@ -7,7 +8,7 @@ import 'package:http/http.dart' as http;
 class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
   GroceryNotifier() : super([]);
 
-  itemAdd(GroceryItem newItem) async {
+  itemAdd(GroceryItem newItem, BuildContext context) async {
     state = [...state, newItem];
     final url = Uri.https(
         'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
@@ -22,6 +23,11 @@ class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
         },
       ),
     );
+    print(response.body);
+    print(response.statusCode);
+    if (context.mounted) {
+      Navigator.pop(context);
+    } 
   }
 
   itemDissible(GroceryItem dismissibleItem) {

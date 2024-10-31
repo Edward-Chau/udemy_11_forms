@@ -1,13 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:udemy_11/Provider/grocery_provider.dart';
 import 'package:udemy_11/deta/categories.dart';
-import 'package:udemy_11/deta/dummy_items.dart';
 import 'package:udemy_11/models/category.dart';
 import 'package:udemy_11/models/grocery_item.dart';
-import 'package:http/http.dart' as http;
 
 class NewItemScreen extends ConsumerStatefulWidget {
   const NewItemScreen({super.key});
@@ -24,12 +20,13 @@ class _NewItemScreenState extends ConsumerState<NewItemScreen> {
       // final url = Uri.https(
       //     'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
       // http.post(url, headers: {'Content-Type': 'applicatio/json'}, body: json.encode(value));
-      ref.read(groceryProvider.notifier).itemAdd(GroceryItem(
-          category: selecedCategory,
-          id: DateTime.now().toString(),
-          name: enterName!,
-          quantity: enterQuantity));
-      Navigator.pop(context);
+      ref.read(groceryProvider.notifier).itemAdd(
+          GroceryItem(
+              category: selecedCategory,
+              id: DateTime.now().toString(),
+              name: enterName!,
+              quantity: enterQuantity),
+          context);
     }
   }
 
