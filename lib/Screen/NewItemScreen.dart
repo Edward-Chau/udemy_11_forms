@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:udemy_11/Provider/grocery_provider.dart';
+import 'package:udemy_11/Provider/groceryFuction_provider.dart';
 import 'package:udemy_11/deta/categories.dart';
 import 'package:udemy_11/models/category.dart';
 import 'package:udemy_11/models/grocery_item.dart';
