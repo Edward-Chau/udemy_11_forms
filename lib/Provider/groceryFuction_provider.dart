@@ -32,12 +32,24 @@ class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
     }
     Navigator.pop(context);
 
-    // loaditem
-    final getResponse = await http.get(url);
-    // print(getResponse.body);
-    final newListGrocery = json.decode(getResponse.body);
-    print(newListGrocery);
-    // final newList=jsonDecode(getResponse)
+    final responses = await http.get(url);
+
+    Map<String, dynamic> newList = json.decode(responses.body);
+
+    final List<GroceryItem> tempLoadedItems = newList.entries.map((toElement) {
+      final categorie = newList.entries.firstWhere((item) {
+        return item.value.title == toElement.value['category'];
+      }).value;
+
+      return GroceryItem(
+        category: categorie,
+        name: toElement.value['name'],
+        quantity: toElement.value['quantity'],
+        id: toElement.key,
+      );
+    }).toList();
+
+    state = tempLoadedItems;
   }
 
   itemDissible(GroceryItem dismissibleItem) {

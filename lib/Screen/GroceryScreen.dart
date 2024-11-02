@@ -34,10 +34,10 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
         initGrocyList.entries.map((toElement) {
       final categorie = categories.entries.firstWhere((item) {
         return item.value.title == toElement.value['category'];
-      }).value;
+      });
 
       return GroceryItem(
-        category: categorie,
+        category: categorie.value,
         name: toElement.value['name'],
         quantity: toElement.value['quantity'],
         id: toElement.key,
@@ -45,7 +45,10 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     }).toList();
     print('hello');
     print(tempLoadedItems);
-    groceryList = tempLoadedItems;
+
+    setState(() {
+      groceryList = tempLoadedItems;
+    });
   }
 
   @override
@@ -56,6 +59,7 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // groceryList = tempLoadedItems;
     // List<GroceryItem> groceryList = ref.watch(groceryProvider);
 
     // final List<GroceryItem> groceryList = tempList;
