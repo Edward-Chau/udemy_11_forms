@@ -16,6 +16,8 @@ class GroceryScreen extends ConsumerStatefulWidget {
 }
 
 class _GroceryScreenState extends ConsumerState<GroceryScreen> {
+  List<GroceryItem> groceryList = [];
+
   void _addItem() {
     Navigator.pushNamed(context, 'addscreeen');
   }
@@ -27,7 +29,23 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     print(response.statusCode); //200
     print(response.body); //json format list
     Map<String, dynamic> initGrocyList = json.decode(response.body);
-    print(initGrocyList);
+    // print(initGrocyList);
+    final List<GroceryItem> tempLoadedItems =
+        initGrocyList.entries.map((toElement) {
+      final categorie = categories.entries.firstWhere((item) {
+        return item.value.title == toElement.value['category'];
+      }).value;
+
+      return GroceryItem(
+        category: categorie,
+        name: toElement.value['name'],
+        quantity: toElement.value['quantity'],
+        id: toElement.key,
+      );
+    }).toList();
+    print('hello');
+    print(tempLoadedItems);
+    groceryList = tempLoadedItems;
   }
 
   @override
@@ -35,12 +53,11 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     loaditem();
     super.initState();
   }
-  //need init?
-  //do two times? when init & add item?
 
   @override
   Widget build(BuildContext context) {
-    final List<GroceryItem> groceryList = ref.watch(groceryProvider);
+    // List<GroceryItem> groceryList = ref.watch(groceryProvider);
+
     // final List<GroceryItem> groceryList = tempList;
 
     return Scaffold(
