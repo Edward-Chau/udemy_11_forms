@@ -16,51 +16,51 @@ class GroceryScreen extends ConsumerStatefulWidget {
 }
 
 class _GroceryScreenState extends ConsumerState<GroceryScreen> {
-  List<GroceryItem> groceryList = [];
+  // List<GroceryItem> groceryList = [];
 
   void _addItem() {
     Navigator.pushNamed(context, 'addscreeen');
   }
 
-  void loaditem() async {
-    final url = Uri.https(
-        'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
-    final response = await http.get(url);
-    print(response.statusCode); //200
-    print(response.body); //json format list
-    Map<String, dynamic> initGrocyList = json.decode(response.body);
-    // print(initGrocyList);
-    final List<GroceryItem> tempLoadedItems =
-        initGrocyList.entries.map((toElement) {
-      final categorie = categories.entries.firstWhere((item) {
-        return item.value.title == toElement.value['category'];
-      });
+  // void loaditem() async {
+  //   final url = Uri.https(
+  //       'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
+  //   final response = await http.get(url);
+  //   print(response.statusCode); //200
+  //   print(response.body); //json format list
+  //   Map<String, dynamic> initGrocyList = json.decode(response.body);
+  //   // print(initGrocyList);
+  //   final List<GroceryItem> tempLoadedItems =
+  //       initGrocyList.entries.map((toElement) {
+  //     final categorie = categories.entries.firstWhere((item) {
+  //       return item.value.title == toElement.value['category'];
+  //     });
 
-      return GroceryItem(
-        category: categorie.value,
-        name: toElement.value['name'],
-        quantity: toElement.value['quantity'],
-        id: toElement.key,
-      );
-    }).toList();
-    print('hello');
-    print(tempLoadedItems);
+  //     return GroceryItem(
+  //       category: categorie.value,
+  //       name: toElement.value['name'],
+  //       quantity: toElement.value['quantity'],
+  //       id: toElement.key,
+  //     );
+  //   }).toList();
+  //   print('hello');
+  //   print(tempLoadedItems);
 
-    setState(() {
-      groceryList = tempLoadedItems;
-    });
-  }
+  //   setState(() {
+  //     groceryList = tempLoadedItems;
+  //   });
+  // }
 
-  @override
-  void initState() {
-    loaditem();
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   loaditem();
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
     // groceryList = tempLoadedItems;
-    // List<GroceryItem> groceryList = ref.watch(groceryProvider);
+    List<GroceryItem> groceryList = ref.watch(groceryProvider);
 
     // final List<GroceryItem> groceryList = tempList;
 
@@ -87,14 +87,22 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
           : ListView.builder(
               itemCount: groceryList.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Container(
-                    width: 30,
-                    height: 30,
-                    color: groceryList[index].category.color,
+                return Dismissible(
+                  key: ValueKey(groceryList[index].id),
+                  onDismissed: (direction) {
+                    ref
+                        .read(groceryProvider.notifier)
+                        .listDissible(groceryList[index]);
+                  },
+                  child: ListTile(
+                    leading: Container(
+                      width: 30,
+                      height: 30,
+                      color: groceryList[index].category.color,
+                    ),
+                    title: Text(groceryList[index].name),
+                    trailing: Text(groceryList[index].quantity.toString()),
                   ),
-                  title: Text(groceryList[index].name),
-                  trailing: Text(groceryList[index].quantity.toString()),
                 );
               },
             ),

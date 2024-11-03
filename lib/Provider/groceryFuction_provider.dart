@@ -3,59 +3,67 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:udemy_11/Provider/getGroceryList_provider.dart';
+import 'package:udemy_11/deta/categories.dart';
 import 'package:udemy_11/models/grocery_item.dart';
 import 'package:http/http.dart' as http;
 
 // final Ref ref;
 class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
-  GroceryNotifier() : super([]);
+  GroceryNotifier() : super([]) {
+    loadItemInit();
+  } //will load item when .watch in first time
+  final url = Uri.https(
+      'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
 
-  itemAdd(GroceryItem newItem, BuildContext context) async {
-    final url = Uri.https(
-        'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
+  Future<List<GroceryItem>> getHTTPItem() async {
+    final initrespones = await http.get(url);
+    Map<String, dynamic> initList = json.decode(initrespones.body);
 
-    final response = await http.post(
+    List<GroceryItem> mapingList = initList.entries.map((toElement) {
+      final categorie = categories.entries.firstWhere((item) {
+        return item.value.title == toElement.value['category'];
+      });
+
+      return GroceryItem(
+          category: categorie.value,
+          name: toElement.value['name'],
+          quantity: toElement.value['quantity'],
+          id: toElement.key);
+    }).toList();
+
+    return mapingList;
+  }
+
+  loadItemInit() async {
+    Future<List<GroceryItem>> mapingList = getHTTPItem();
+
+    state = await mapingList; //load item when app is start
+  }
+
+  itemAdd(GroceryItem item, BuildContext context) async {
+    http.post(
       url,
-      headers: {'content-type': 'application/json'},
+      // headers: {'Content-Type': 'applicatio/json'},
       body: json.encode(
         {
-          'name': newItem.name,
-          'quantity': newItem.quantity,
-          'category': newItem.category.title
+          'category': item.category.title,
+          'name': item.name,
+          'quantity': item.quantity
         },
       ),
     );
-    // print(response.body); //item id
-    // print(response.statusCode); //200
-    if (!context.mounted) {
-      return;
+    List<GroceryItem> updateList = await getHTTPItem();
+    state = updateList;
+    if (context.mounted) {
+      Navigator.pop(context);
     }
-    Navigator.pop(context);
-
-    final responses = await http.get(url);
-
-    Map<String, dynamic> newList = json.decode(responses.body);
-
-    final List<GroceryItem> tempLoadedItems = newList.entries.map((toElement) {
-      final categorie = newList.entries.firstWhere((item) {
-        return item.value.title == toElement.value['category'];
-      }).value;
-
-      return GroceryItem(
-        category: categorie,
-        name: toElement.value['name'],
-        quantity: toElement.value['quantity'],
-        id: toElement.key,
-      );
-    }).toList();
-
-    state = tempLoadedItems;
   }
 
-  itemDissible(GroceryItem dismissibleItem) {
-    state = state.where((item) {
-      return item != dismissibleItem;
-    }).toList();
+  listDissible(GroceryItem removeItem) async {
+//  List<GroceryItem> editList = await getHTTPItem();
+//  List<GroceryItem> newList=editList.where((eachItem){return eachItem!=removeItem;}).toList();
+
+// http.post(url);
   }
 }
 
