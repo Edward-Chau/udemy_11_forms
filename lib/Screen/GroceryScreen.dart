@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:udemy_11/Provider/groceryFuction_provider.dart';
+import 'package:udemy_11/Provider/listLoading_provider.dart';
 import 'package:udemy_11/deta/categories.dart';
 import 'package:udemy_11/deta/dummy_items.dart';
 import 'package:udemy_11/models/grocery_item.dart';
@@ -61,8 +62,8 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
   Widget build(BuildContext context) {
     // groceryList = tempLoadedItems;
     List<GroceryItem> groceryList = ref.watch(groceryProvider);
-
-    // final List<GroceryItem> groceryList = tempList;
+    // bool isLoading = ref.watch(groceryProvider.notifier).isLoading;
+    bool isLoading = ref.watch(listLoadingProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -80,32 +81,40 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
           ),
         ],
       ),
-      body: groceryList.isEmpty
+      body: isLoading
           ? const Center(
-              child: Text("no item"),
+              child: CircularProgressIndicator(
+                strokeWidth: 3,
+                color: Colors.grey,
+              ),
             )
-          : ListView.builder(
-              itemCount: groceryList.length,
-              itemBuilder: (context, index) {
-                return Dismissible(
-                  key: ValueKey(groceryList[index].id),
-                  onDismissed: (direction) {
-                    ref
-                        .read(groceryProvider.notifier)
-                        .listDissible(groceryList[index]);
+          : groceryList.isEmpty
+              ? const Center(
+                  child: Text("no item"),
+                )
+              : ListView.builder(
+                  itemCount: groceryList.length,
+                  itemBuilder: (context, index) {
+                    return Dismissible(
+                      key: ValueKey(groceryList[index].id),
+                      onDismissed: (direction) {
+                        ref
+                            .read(groceryProvider.notifier)
+                            .listDissible(groceryList[index]);
+                      },
+                      child: ListTile(
+                        leading: Container(
+                          width: 30,
+                          height: 30,
+                          color: groceryList[index].category.color,
+                        ),
+                        title: Text(groceryList[index].name),
+                        subtitle: Text('id: ${groceryList[index].id}'),
+                        trailing: Text(groceryList[index].quantity.toString()),
+                      ),
+                    );
                   },
-                  child: ListTile(
-                    leading: Container(
-                      width: 30,
-                      height: 30,
-                      color: groceryList[index].category.color,
-                    ),
-                    title: Text(groceryList[index].name),
-                    trailing: Text(groceryList[index].quantity.toString()),
-                  ),
-                );
-              },
-            ),
+                ),
     );
   }
 }

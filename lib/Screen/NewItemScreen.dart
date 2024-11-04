@@ -13,10 +13,16 @@ class NewItemScreen extends ConsumerStatefulWidget {
 }
 
 class _NewItemScreenState extends ConsumerState<NewItemScreen> {
+  bool isSending = false;
+
   final _formkey = GlobalKey<FormState>();
   void saveItem() {
     if (_formkey.currentState!.validate()) {
       _formkey.currentState!.save();
+
+      setState(() {
+        isSending = true;
+      });
       // final url = Uri.https(
       //     'udemy12http-default-rtdb.firebaseio.com', 'shopping-list.json');
       // http.post(url, headers: {'Content-Type': 'applicatio/json'}, body: json.encode(value));
@@ -125,15 +131,17 @@ class _NewItemScreenState extends ConsumerState<NewItemScreen> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: () {
-                      _formkey.currentState!.reset();
-                    },
+                    onPressed: isSending
+                        ? null
+                        : () {
+                            _formkey.currentState!.reset();
+                          },
                     child: const Text('Reset'),
                   ),
                   const SizedBox(width: 8),
                   ElevatedButton(
-                    onPressed: saveItem,
-                    child: const Text('Add Item'),
+                    onPressed: isSending ? null : saveItem,
+                    child: Text(isSending ? 'saving...' : 'Add Item'),
                   ),
                 ],
               ),
