@@ -35,26 +35,36 @@ class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
 
   Future<List<GroceryItem>> getHTTPItem() async {
     final initrespones = await http.get(url);
-    if (initrespones.statusCode == 200) {
-      Map<String, dynamic> initList = json.decode(initrespones.body);
+    try {
+      if (initrespones.statusCode == 200) {
+        if (initrespones.body == 'null' || initrespones.body.isEmpty) {
+          ref.read(listLoadingProvider.notifier).finLoading();
+          return [];
+        } //nothing in firebase
 
-      List<GroceryItem> mapingList = initList.entries.map((toElement) {
-        final categorie = categories.entries.firstWhere((item) {
-          return item.value.title == toElement.value['category'];
-        });
+        Map<String, dynamic> initList = json.decode(initrespones.body);
 
-        return GroceryItem(
-            category: categorie.value,
-            name: toElement.value['name'],
-            quantity: toElement.value['quantity'],
-            id: toElement.key);
-      }).toList();
+        List<GroceryItem> mapingList = initList.entries.map((toElement) {
+          final categorie = categories.entries.firstWhere((item) {
+            return item.value.title == toElement.value['category'];
+          });
 
-      return mapingList;
-    } else {
-      print("get item error");
-      return [];
+          return GroceryItem(
+              category: categorie.value,
+              name: toElement.value['name'],
+              quantity: toElement.value['quantity'],
+              id: toElement.key);
+        }).toList();
+
+        return mapingList;
+      } else {
+        print("get item error");
+        return [];
+      }
+    } catch (err) {
+      print('error');
     }
+    return [];
   }
 
   itemAdd(GroceryItem item, BuildContext context) async {
@@ -91,11 +101,28 @@ class GroceryNotifier extends StateNotifier<List<GroceryItem>> {
     }
   }
 
-  listDissible(GroceryItem removeItem) async {
-//  List<GroceryItem> editList = await getHTTPItem();
-//  List<GroceryItem> newList=editList.where((eachItem){return eachItem!=removeItem;}).toList();
+  listDissible(GroceryItem removeItem, BuildContext context) async {
+    state = state.where((eachItem) {
+      return eachItem != removeItem;
+    }).toList(); //deled in state
+    final deleteurl = Uri.https('udemy12http-default-rtdb.firebaseio.com',
+        'shopping-list/${removeItem.id}.json');
+    final reponse = await http.delete(deleteurl);
 
-// http.post(url);
+    if (reponse.statusCode != 200) {
+      List<GroceryItem> tempList = state;
+      tempList.insert(state.indexOf(removeItem), removeItem);
+      state = List.from(tempList);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('error')));
+      } //undo when can"t deleted in firebase
+    } else {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('item remove')));
+      }
+    }
   }
 }
 

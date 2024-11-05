@@ -92,28 +92,34 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
               ? const Center(
                   child: Text("no item"),
                 )
-              : ListView.builder(
-                  itemCount: groceryList.length,
-                  itemBuilder: (context, index) {
-                    return Dismissible(
-                      key: ValueKey(groceryList[index].id),
-                      onDismissed: (direction) {
-                        ref
-                            .read(groceryProvider.notifier)
-                            .listDissible(groceryList[index]);
-                      },
-                      child: ListTile(
-                        leading: Container(
-                          width: 30,
-                          height: 30,
-                          color: groceryList[index].category.color,
-                        ),
-                        title: Text(groceryList[index].name),
-                        subtitle: Text('id: ${groceryList[index].id}'),
-                        trailing: Text(groceryList[index].quantity.toString()),
-                      ),
-                    );
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    ref.watch(groceryProvider.notifier).loadItemInit();
                   },
+                  child: ListView.builder(
+                    itemCount: groceryList.length,
+                    itemBuilder: (context, index) {
+                      return Dismissible(
+                        key: ValueKey(groceryList[index].id),
+                        onDismissed: (direction) {
+                          ref
+                              .read(groceryProvider.notifier)
+                              .listDissible(groceryList[index], context);
+                        },
+                        child: ListTile(
+                          leading: Container(
+                            width: 30,
+                            height: 30,
+                            color: groceryList[index].category.color,
+                          ),
+                          title: Text(groceryList[index].name),
+                          subtitle: Text('id: ${groceryList[index].id}'),
+                          trailing:
+                              Text(groceryList[index].quantity.toString()),
+                        ),
+                      );
+                    },
+                  ),
                 ),
     );
   }
